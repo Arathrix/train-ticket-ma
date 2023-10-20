@@ -52,6 +52,8 @@ services:
 
   ts-auth-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -66,6 +68,8 @@ services:
 
   ts-user-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -89,6 +93,8 @@ services:
 
   ts-route-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -103,6 +109,8 @@ services:
 
   ts-contacts-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -117,6 +125,8 @@ services:
 
   ts-order-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -131,6 +141,8 @@ services:
 
   ts-order-other-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -145,6 +157,8 @@ services:
 
   ts-config-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -159,6 +173,8 @@ services:
 
   ts-station-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -173,6 +189,8 @@ services:
 
   ts-train-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -187,6 +205,8 @@ services:
 
   ts-travel-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -201,6 +221,8 @@ services:
 
   ts-travel2-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -242,6 +264,8 @@ services:
 
   ts-price-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -256,6 +280,8 @@ services:
 
   ts-notification-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -270,6 +296,8 @@ services:
 
   ts-security-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -284,6 +312,8 @@ services:
 
   ts-inside-payment-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -307,6 +337,8 @@ services:
 
   ts-payment-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -321,6 +353,8 @@ services:
 
   ts-rebook-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -344,6 +378,8 @@ services:
 
   ts-assurance-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -376,6 +412,8 @@ services:
 
   ts-ticket-office-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -390,15 +428,17 @@ services:
 
   ts-news-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
   ts-voucher-mysql:
     image: mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     expose:
       - "3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
     networks:
       - my-network
 
@@ -444,6 +484,8 @@ services:
 
   ts-consign-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -458,11 +500,15 @@ services:
 
   ts-consign-price-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
   ts-food-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -530,6 +576,8 @@ services:
 
   ts-delivery-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -544,6 +592,8 @@ services:
 
   ts-food-delivery-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -558,6 +608,8 @@ services:
 
   ts-gateway-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -572,6 +624,8 @@ services:
 
   ts-station-food-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
@@ -587,6 +641,8 @@ services:
 
   ts-train-food-mysql:
     image: mysql:5.7
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD: yes
     networks:
       - my-network
 
