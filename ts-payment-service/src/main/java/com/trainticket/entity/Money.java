@@ -2,31 +2,20 @@ package com.trainticket.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.util.UUID;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * @author fdse
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-@GenericGenerator(name = "jpa-uuid", strategy = "org.hibernate.id.UUIDGenerator")
-@Entity
+@Document(collection="addMoney")
 public class Money {
-    @Id
-    @Column(length = 36)
-    @GeneratedValue(generator = "jpa-uuid")
-    private String id;
-
-    @Column(length = 36)
     private String userId;
     private String money; //NOSONAR
+
+    public Money(){
+        //Default Constructor
+    }
 
 }

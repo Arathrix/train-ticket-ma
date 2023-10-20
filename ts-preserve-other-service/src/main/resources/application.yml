@@ -12,15 +12,14 @@ server:
   port: 14569 # HTTP (Tomcat) port
 
 spring:
-  cloud:
-    nacos:
-      discovery:
-        server-addr: ${NACOS_ADDRS:nacos-0.nacos-headless.default.svc.cluster.local,nacos-1.nacos-headless.default.svc.cluster.local,nacos-2.nacos-headless.default.svc.cluster.local}
   application:
     name: ts-preserve-other-service
-  rabbitmq:
-    host: ${rabbitmq_host:localhost}
-    port: 5672
 
 swagger:
   controllerPackage: preserveOther.controller
+
+opentracing:
+  jaeger:
+    udp-sender:
+      host: jaeger
+      port: 6831

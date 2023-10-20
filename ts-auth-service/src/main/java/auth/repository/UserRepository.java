@@ -1,7 +1,7 @@
 package auth.repository;
 
 import auth.entity.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * @author fdse
  */
-public interface UserRepository extends CrudRepository<User, String> {
+public interface UserRepository extends MongoRepository<User, String> {
 
     /**
      * find by username
@@ -25,5 +25,5 @@ public interface UserRepository extends CrudRepository<User, String> {
      * @param userId user id
      * @return null
      */
-    void deleteByUserId(String userId);
+    void deleteByUserId(UUID userId);
 }

@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import travelplan.entity.TransferTravelInfo;
-import edu.fudan.common.entity.TripInfo;
+import travelplan.entity.TripInfo;
 import travelplan.service.TravelPlanService;
 
 @RunWith(JUnit4.class)

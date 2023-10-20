@@ -37,20 +37,17 @@ public class StationController {
 
     @PostMapping(value = "/stations")
     public ResponseEntity<Response> create(@RequestBody Station station, @RequestHeader HttpHeaders headers) {
-        StationController.LOGGER.info("[create][Create station][name: {}]",station.getName());
         return new ResponseEntity<>(stationService.create(station, headers), HttpStatus.CREATED);
     }
 
     @PutMapping(value = "/stations")
     public HttpEntity update(@RequestBody Station station, @RequestHeader HttpHeaders headers) {
-        StationController.LOGGER.info("[update][Update station][StationId: {}]",station.getId());
         return ok(stationService.update(station, headers));
     }
 
-    @DeleteMapping(value = "/stations/{stationsId}")
-    public ResponseEntity<Response> delete(@PathVariable String stationsId, @RequestHeader HttpHeaders headers) {
-        StationController.LOGGER.info("[delete][Delete station][StationId: {}]",stationsId);
-        return ok(stationService.delete(stationsId, headers));
+    @DeleteMapping(value = "/stations")
+    public ResponseEntity<Response> delete(@RequestBody Station station, @RequestHeader HttpHeaders headers) {
+        return ok(stationService.delete(station, headers));
     }
 
 
@@ -60,7 +57,6 @@ public class StationController {
     public HttpEntity queryForStationId(@PathVariable(value = "stationNameForId")
                                                 String stationName, @RequestHeader HttpHeaders headers) {
         // string
-        StationController.LOGGER.info("[queryForId][Query for station id][StationName: {}]",stationName);
         return ok(stationService.queryForId(stationName, headers));
     }
 
@@ -68,7 +64,6 @@ public class StationController {
     @CrossOrigin(origins = "*")
     @PostMapping(value = "/stations/idlist")
     public HttpEntity queryForIdBatch(@RequestBody List<String> stationNameList, @RequestHeader HttpHeaders headers) {
-        StationController.LOGGER.info("[queryForIdBatch][Query stations for id batch][StationNameNumbers: {}]",stationNameList.size());
         return ok(stationService.queryForIdBatch(stationNameList, headers));
     }
 
@@ -77,7 +72,7 @@ public class StationController {
     @GetMapping(value = "/stations/name/{stationIdForName}")
     public HttpEntity queryById(@PathVariable(value = "stationIdForName")
                                         String stationId, @RequestHeader HttpHeaders headers) {
-        StationController.LOGGER.info("[queryById][Query stations By Id][Id: {}]", stationId);
+        StationController.LOGGER.info("[Station Service] Query By Id: {}", stationId);
         // string
         return ok(stationService.queryById(stationId, headers));
     }
@@ -86,7 +81,6 @@ public class StationController {
     @CrossOrigin(origins = "*")
     @PostMapping(value = "/stations/namelist")
     public HttpEntity queryForNameBatch(@RequestBody List<String> stationIdList, @RequestHeader HttpHeaders headers) {
-        StationController.LOGGER.info("[queryByIdBatch][Query stations for name batch][StationIdNumbers: {}]",stationIdList.size());
         return ok(stationService.queryByIdBatch(stationIdList, headers));
     }
 

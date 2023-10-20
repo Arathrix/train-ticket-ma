@@ -14,8 +14,8 @@ $("#basic_information_button").click(function(){
         alert("Please input the type of the train.");
         return;
     }
-    travelInfo.startStation =  $("#basic_information_startingStation").val();
-    if(travelInfo.startStation == null || travelInfo.startStation == ""){
+    travelInfo.startingStation =  $("#basic_information_startingStation").val();
+    if(travelInfo.startingStation == null || travelInfo.startingStation == ""){
         alert("Please input the starting station.");
         return;
     }
@@ -29,8 +29,8 @@ $("#basic_information_button").click(function(){
         alert("Please input the terminal station.");
         return;
     }
-    travelInfo.startTime = convertStringToTime($("#basic_information_startingTime").val());
-    if(travelInfo.startTime == null || travelInfo.startTime == ""){
+    travelInfo.startingTime = convertStringToTime($("#basic_information_startingTime").val());
+    if(travelInfo.startingTime == null || travelInfo.startingTime == ""){
         alert("Please input the starting time.");
         return;
     }
@@ -41,8 +41,8 @@ $("#basic_information_button").click(function(){
     }
     var basicInfo = new Object();
     basicInfo.trip = travelInfo;
-    basicInfo.startPlace = $("#basic_information_startingPlace").val();
-    if(basicInfo.startPlace == null || basicInfo.startPlace == ""){
+    basicInfo.startingPlace = $("#basic_information_startingPlace").val();
+    if(basicInfo.startingPlace == null || basicInfo.startingPlace == ""){
         alert("Please input the starting place.");
         return;
     }

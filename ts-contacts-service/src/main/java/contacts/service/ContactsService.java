@@ -36,7 +36,7 @@ public interface ContactsService {
      * @param headers headers
      * @return Reaponse
      */
-    Response delete(String contactsId, HttpHeaders headers);
+    Response delete(UUID contactsId, HttpHeaders headers);
 
     /**
      * modify
@@ -62,7 +62,7 @@ public interface ContactsService {
      * @param headers headers
      * @return Reaponse
      */
-    Response findContactsById(String id, HttpHeaders headers);
+    Response findContactsById(UUID id, HttpHeaders headers);
 
     /**
      * find contacts by account id
@@ -71,6 +71,6 @@ public interface ContactsService {
      * @param headers headers
      * @return Reaponse
      */
-    Response findContactsByAccountId(String accountId, HttpHeaders headers);
+    Response findContactsByAccountId(UUID accountId, HttpHeaders headers);
 
 }

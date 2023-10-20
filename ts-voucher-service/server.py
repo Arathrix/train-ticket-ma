@@ -2,12 +2,9 @@
 import tornado.ioloop
 import tornado.web
 import json
-import os
 import pymysql
 import urllib
 import urllib.request
-
-mysql_config = {}
 
 class GetVoucherHandler(tornado.web.RequestHandler):
 
@@ -28,8 +25,14 @@ class GetVoucherHandler(tornado.web.RequestHandler):
             # self.write(jsonStr)
 
             #Insert vouchers table into a voucher
-            global mysql_config
-            conn = pymysql.connect(**mysql_config)
+            config = {
+                'host':'ts-voucher-mysql',
+                'port':3306,
+                'user':'root',
+                'password':'root',
+                'db':'voucherservice'
+            }
+            conn = pymysql.connect(**config)
             cur = conn.cursor()
             #Insert statement
             sql = 'INSERT INTO voucher (order_id,travelDate,travelTime,contactName,trainNumber,seatClass,seatNumber,startStation,destStation,price)VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
@@ -44,22 +47,12 @@ class GetVoucherHandler(tornado.web.RequestHandler):
             self.write(queryVoucher)
 
     def queryOrderByIdAndType(self,orderId,type):
-        # Because nacos-sdk-python does not support nacos 2.x yet, we still use environment variables
-        # to set order-service url.
         type = int(type)
         #ordinary train
-        order_url = 'http://ts-order-service:12031'
-        order_other_url = 'http://ts-order-other-service:12032'
-        if(os.getenv("ORDER_SERVICE_URL") is not None):
-            order_url = os.getenv("ORDER_SERVICE_URL")
-
-        if(os.getenv("ORDER_OTHER_SERVICE_URL") is not None):
-            order_other_url = os.getenv("ORDER_OTHER_SERVICE_URL")
-
         if(type == 0):
-            url=order_other_url + '/api/v1/orderOtherService/orderOther/' + orderId
+            url='http://ts-order-other-service:12032/api/v1/orderOtherService/orderOther/' + orderId
         else:
-            url=order_url + '/api/v1/orderservice/order/'+orderId
+            url='http://ts-order-service:12031/api/v1/orderservice/order/'+orderId
         header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko',"Content-Type": "application/json"}
         req = urllib.request.Request(url=url,headers=header_dict)# Generate the full data for the page request
         response = urllib.request.urlopen(req)# Send page request
@@ -67,8 +60,14 @@ class GetVoucherHandler(tornado.web.RequestHandler):
 
     def fetchVoucherByOrderId(self,orderId):
         #Check the voucher for reimbursement for orderId from the voucher table
-        global mysql_config
-        conn = pymysql.connect(**mysql_config)
+        config = {
+            'host':'ts-voucher-mysql',
+            'port':3306,
+            'user':'root',
+            'password':'root',
+            'db':'voucherservice'
+        }
+        conn = pymysql.connect(**config)
         cur = conn.cursor()
         #query statement
         sql = 'SELECT * FROM voucher where order_id = %s'
@@ -102,14 +101,34 @@ def make_app():
     ])
 
 def initDatabase():
+    config = {
+        'host':'ts-voucher-mysql',
+        'port':3306,
+        'user':'root',
+        'password':'root'
+    }
     # Create a connection
-    print(mysql_config)
-    connect = pymysql.connect(**mysql_config)
+    connect = pymysql.connect(**config)
     cur = connect.cursor()
+    #create db
+    sql = "CREATE SCHEMA IF NOT EXISTS voucherservice;"
+    try:
+        cur.execute(sql)
+        connect.commit()
+    finally:
+        pass
+
+    #Use the database
+    sql = "use voucherservice;"
+    try:
+        cur.execute(sql)
+        connect.commit()
+    finally:
+        pass
 
     #Create the table
     sql = """
-    CREATE TABLE if not exists voucher (
+    CREATE TABLE if not exists voucherservice.voucher (
     voucher_id INT NOT NULL AUTO_INCREMENT,
     order_id VARCHAR(1024) NOT NULL,
     travelDate VARCHAR(1024) NOT NULL,
@@ -128,36 +147,8 @@ def initDatabase():
     finally:
         connect.close()
 
-def initMysqlConfig():
-    global mysql_config
-    host = "ts-voucher-mysql"
-    port = 3306
-    user = "root"
-    password = "Abcd1234#"
-    db = "ts-voucher-mysql"
-    if(os.getenv("VOUCHER_MYSQL_HOST") is not None):
-        host = os.getenv("VOUCHER_MYSQL_HOST")
-    if(os.getenv("VOUCHER_MYSQL_PORT") is not None):
-        port = int(os.getenv("VOUCHER_MYSQL_PORT"))
-    if(os.getenv("VOUCHER_MYSQL_USER") is not None):
-        user = os.getenv("VOUCHER_MYSQL_USER")
-    if(os.getenv("VOUCHER_MYSQL_PASSWORD") is not None):
-        password = os.getenv("VOUCHER_MYSQL_PASSWORD")
-    if(os.getenv("VOUCHER_MYSQL_DATABASE") is not None):
-        db = os.getenv("VOUCHER_MYSQL_DATABASE")
-
-    mysql_config = {
-        'host': host,
-        'port': port,
-        'user': user,
-        'password': password,
-        'db': db
-    }
-
-
 if __name__ == "__main__":
     #Create database and tables
-    initMysqlConfig()
     initDatabase()
     app = make_app()
     app.listen(16101)

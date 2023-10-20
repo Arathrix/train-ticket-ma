@@ -1,7 +1,5 @@
 package travel2.entity;
 
-import travel2.entity.Trip;
-import edu.fudan.common.util.StringUtils;
 import lombok.Data;
 
 import java.util.Date;
@@ -14,13 +12,14 @@ public class Travel {
 
     private Trip trip;
 
-    private String startPlace;
+    private String startingPlace;
 
     private String endPlace;
 
-    private String departureTime;
+    private Date departureTime;
 
     public Travel(){
         //Default Constructor
     }
+
 }

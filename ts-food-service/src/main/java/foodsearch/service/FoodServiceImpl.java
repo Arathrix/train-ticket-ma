@@ -1,28 +1,19 @@
 package foodsearch.service;
 
-import edu.fudan.common.entity.Food;
-import edu.fudan.common.entity.StationFoodStore;
-import edu.fudan.common.entity.TrainFood;
-import edu.fudan.common.util.JsonUtils;
 import edu.fudan.common.util.Response;
-import edu.fudan.common.entity.Route;
 import foodsearch.entity.*;
-import foodsearch.mq.RabbitSend;
 import foodsearch.repository.FoodOrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,88 +29,21 @@ public class FoodServiceImpl implements FoodService {
     @Autowired
     private FoodOrderRepository foodOrderRepository;
 
-    @Autowired
-    private RabbitSend sender;
-
-    @Autowired
-    private DiscoveryClient discoveryClient;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(FoodServiceImpl.class);
-
-    private String getServiceUrl(String serviceName) {
-        return "http://" + serviceName;
-    }
 
     String success = "Success.";
     String orderIdNotExist = "Order Id Is Non-Existent.";
-
-    @Override
-    public Response createFoodOrdersInBatch(List<FoodOrder> orders, HttpHeaders headers) {
-        boolean error = false;
-        String errorOrderId = "";
-
-        // Check if foodOrder exists
-        for (FoodOrder addFoodOrder : orders) {
-            FoodOrder fo = foodOrderRepository.findByOrderId(addFoodOrder.getOrderId());
-            if (fo != null) {
-                LOGGER.error("[createFoodOrdersInBatch][AddFoodOrder][Order Id Has Existed][OrderId: {}]", addFoodOrder.getOrderId());
-                error = true;
-                errorOrderId = addFoodOrder.getOrderId().toString();
-                break;
-            }
-        }
-        if (error) {
-            return new Response<>(0, "Order Id " + errorOrderId + "Existed", null);
-        }
-
-        List<String> deliveryJsons = new ArrayList<>();
-        for (FoodOrder addFoodOrder : orders) {
-            FoodOrder fo = new FoodOrder();
-            fo.setId(UUID.randomUUID().toString());
-            fo.setOrderId(addFoodOrder.getOrderId());
-            fo.setFoodType(addFoodOrder.getFoodType());
-            if (addFoodOrder.getFoodType() == 2) {
-                fo.setStationName(addFoodOrder.getStationName());
-                fo.setStoreName(addFoodOrder.getStoreName());
-            }
-            fo.setFoodName(addFoodOrder.getFoodName());
-            fo.setPrice(addFoodOrder.getPrice());
-            foodOrderRepository.save(fo);
-            LOGGER.info("[createFoodOrdersInBatch][AddFoodOrderBatch][Success Save One Order][FoodOrderId: {}]", fo.getOrderId());
-
-            Delivery delivery = new Delivery();
-            delivery.setFoodName(addFoodOrder.getFoodName());
-            delivery.setOrderId(UUID.fromString(addFoodOrder.getOrderId()));
-            delivery.setStationName(addFoodOrder.getStationName());
-            delivery.setStoreName(addFoodOrder.getStoreName());
-
-            String deliveryJson = JsonUtils.object2Json(delivery);
-            deliveryJsons.add(deliveryJson);
-        }
-
-        // 批量发送消息
-        for(String deliveryJson: deliveryJsons) {
-            LOGGER.info("[createFoodOrdersInBatch][AddFoodOrder][delivery info send to mq][delivery info: {}]", deliveryJson);
-            try {
-                sender.send(deliveryJson);
-            } catch (Exception e) {
-                LOGGER.error("[createFoodOrdersInBatch][AddFoodOrder][send delivery info to mq error][exception: {}]", e.toString());
-            }
-        }
-
-        return new Response<>(1, success, null);
-    }
 
     @Override
     public Response createFoodOrder(FoodOrder addFoodOrder, HttpHeaders headers) {
 
         FoodOrder fo = foodOrderRepository.findByOrderId(addFoodOrder.getOrderId());
         if (fo != null) {
-            FoodServiceImpl.LOGGER.error("[createFoodOrder][AddFoodOrder][Order Id Has Existed][OrderId: {}]", addFoodOrder.getOrderId());
+            FoodServiceImpl.LOGGER.info("[Food-Service][AddFoodOrder] Order Id Has Existed.");
             return new Response<>(0, "Order Id Has Existed.", null);
         } else {
             fo = new FoodOrder();
-            fo.setId(UUID.randomUUID().toString());
+            fo.setId(UUID.randomUUID());
             fo.setOrderId(addFoodOrder.getOrderId());
             fo.setFoodType(addFoodOrder.getFoodType());
             if (addFoodOrder.getFoodType() == 2) {
@@ -129,37 +53,20 @@ public class FoodServiceImpl implements FoodService {
             fo.setFoodName(addFoodOrder.getFoodName());
             fo.setPrice(addFoodOrder.getPrice());
             foodOrderRepository.save(fo);
-            FoodServiceImpl.LOGGER.info("[createFoodOrder][AddFoodOrder Success]");
-
-            Delivery delivery = new Delivery();
-            delivery.setFoodName(addFoodOrder.getFoodName());
-            delivery.setOrderId(UUID.fromString(addFoodOrder.getOrderId()));
-            delivery.setStationName(addFoodOrder.getStationName());
-            delivery.setStoreName(addFoodOrder.getStoreName());
-
-            String deliveryJson = JsonUtils.object2Json(delivery);
-            LOGGER.info("[createFoodOrder][AddFoodOrder, delivery info send to mq][delivery info: {}]", deliveryJson);
-            try {
-                sender.send(deliveryJson);
-            } catch (Exception e) {
-                LOGGER.error("[createFoodOrder][AddFoodOrder][send delivery info to mq error][exception: {}]", e.toString());
-            }
-
+            FoodServiceImpl.LOGGER.info("[Food-Service][AddFoodOrder] Success.");
             return new Response<>(1, success, fo);
         }
     }
 
-    @Transactional
     @Override
     public Response deleteFoodOrder(String orderId, HttpHeaders headers) {
-        FoodOrder foodOrder = foodOrderRepository.findByOrderId(UUID.fromString(orderId).toString());
+        FoodOrder foodOrder = foodOrderRepository.findByOrderId(UUID.fromString(orderId));
         if (foodOrder == null) {
-            FoodServiceImpl.LOGGER.error("[deleteFoodOrder][Cancel FoodOrder][Order Id Is Non-Existent][orderId: {}]", orderId);
+            FoodServiceImpl.LOGGER.info("[Food-Service][Cancel FoodOrder] Order Id Is Non-Existent.");
             return new Response<>(0, orderIdNotExist, null);
         } else {
-//            foodOrderRepository.deleteFoodOrderByOrderId(UUID.fromString(orderId));
-            foodOrderRepository.deleteFoodOrderByOrderId(orderId);
-            FoodServiceImpl.LOGGER.info("[deleteFoodOrder][Cancel FoodOrder Success]");
+            foodOrderRepository.deleteFoodOrderByOrderId(UUID.fromString(orderId));
+            FoodServiceImpl.LOGGER.info("[Food-Service][Cancel FoodOrder] Success.");
             return new Response<>(1, success, null);
         }
     }
@@ -170,7 +77,6 @@ public class FoodServiceImpl implements FoodService {
         if (foodOrders != null && !foodOrders.isEmpty()) {
             return new Response<>(1, success, foodOrders);
         } else {
-            FoodServiceImpl.LOGGER.error("[findAllFoodOrder][Find all food order error: {}]", "No Content");
             return new Response<>(0, "No Content", null);
         }
     }
@@ -178,9 +84,9 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public Response updateFoodOrder(FoodOrder updateFoodOrder, HttpHeaders headers) {
-        FoodOrder fo = foodOrderRepository.findById(updateFoodOrder.getId()).orElse(null);
+        FoodOrder fo = foodOrderRepository.findById(updateFoodOrder.getId());
         if (fo == null) {
-            FoodServiceImpl.LOGGER.info("[updateFoodOrder][Update FoodOrder][Order Id Is Non-Existent][orderId: {}]", updateFoodOrder.getOrderId());
+            FoodServiceImpl.LOGGER.info("[Food-Service][Update FoodOrder] Order Id Is Non-Existent.");
             return new Response<>(0, orderIdNotExist, null);
         } else {
             fo.setFoodType(updateFoodOrder.getFoodType());
@@ -191,19 +97,19 @@ public class FoodServiceImpl implements FoodService {
             fo.setFoodName(updateFoodOrder.getFoodName());
             fo.setPrice(updateFoodOrder.getPrice());
             foodOrderRepository.save(fo);
-            FoodServiceImpl.LOGGER.info("[updateFoodOrder][Update FoodOrder Success]");
+            FoodServiceImpl.LOGGER.info("[Food-Service][Update FoodOrder] Success.");
             return new Response<>(1, "Success", fo);
         }
     }
 
     @Override
     public Response findByOrderId(String orderId, HttpHeaders headers) {
-        FoodOrder fo = foodOrderRepository.findByOrderId(UUID.fromString(orderId).toString());
+        FoodOrder fo = foodOrderRepository.findByOrderId(UUID.fromString(orderId));
         if (fo != null) {
-            FoodServiceImpl.LOGGER.info("[findByOrderId][Find Order by id Success][orderId: {}]", orderId);
+            FoodServiceImpl.LOGGER.info("[Food-Service][Find Order by id] Success.");
             return new Response<>(1, success, fo);
         } else {
-            FoodServiceImpl.LOGGER.warn("[findByOrderId][Find Order by id][Order Id Is Non-Existent][orderId: {}]", orderId);
+            FoodServiceImpl.LOGGER.info("[Food-Service][Find Order by id] Order Id Is Non-Existent.");
             return new Response<>(0, orderIdNotExist, null);
         }
     }
@@ -211,45 +117,40 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public Response getAllFood(String date, String startStation, String endStation, String tripId, HttpHeaders headers) {
-        FoodServiceImpl.LOGGER.info("[getAllFood][get All Food with info][data:{} start:{} end:{} tripid:{}]", date, startStation, endStation, tripId);
+        FoodServiceImpl.LOGGER.info("data={} start={} end={} tripid={}", date, startStation, endStation, tripId);
         AllTripFood allTripFood = new AllTripFood();
 
         if (null == tripId || tripId.length() <= 2) {
-            FoodServiceImpl.LOGGER.error("[getAllFood][Get the Get Food Request Failed][Trip id is not suitable][date: {}, tripId: {}]", date, tripId);
             return new Response<>(0, "Trip id is not suitable", null);
         }
 
         // need return this tow element
-        List<Food> trainFoodList = null;
-        Map<String, List<StationFoodStore>> foodStoreListMap = new HashMap<>();
+        List<TrainFood> trainFoodList = null;
+        Map<String, List<FoodStore>> foodStoreListMap = new HashMap<>();
 
         /**--------------------------------------------------------------------------------------*/
-        HttpEntity requestEntityGetTrainFoodListResult = new HttpEntity(null);
-        String train_food_service_url = getServiceUrl("ts-train-food-service");
-        ResponseEntity<Response<List<Food>>> reGetTrainFoodListResult = restTemplate.exchange(
-                train_food_service_url + "/api/v1/trainfoodservice/trainfoods/" + tripId,
+        HttpEntity requestEntityGetTrainFoodListResult = new HttpEntity(headers);
+        ResponseEntity<Response<List<TrainFood>>> reGetTrainFoodListResult = restTemplate.exchange(
+                "http://ts-food-map-service:18855/api/v1/foodmapservice/trainfoods/" + tripId,
                 HttpMethod.GET,
                 requestEntityGetTrainFoodListResult,
-                new ParameterizedTypeReference<Response<List<Food>>>() {
+                new ParameterizedTypeReference<Response<List<TrainFood>>>() {
                 });
 
-
-
-        List<Food> trainFoodListResult = reGetTrainFoodListResult.getBody().getData();
+        List<TrainFood> trainFoodListResult = reGetTrainFoodListResult.getBody().getData();
 
         if (trainFoodListResult != null) {
             trainFoodList = trainFoodListResult;
-            FoodServiceImpl.LOGGER.info("[getAllFood][Get Train Food List!]");
+            FoodServiceImpl.LOGGER.info("[Food Service]Get Train Food List!");
         } else {
-            FoodServiceImpl.LOGGER.error("[getAllFood][reGetTrainFoodListResult][Get the Get Food Request Failed!][date: {}, tripId: {}]", date, tripId);
+            FoodServiceImpl.LOGGER.info("[Food Service]Get the Get Food Request Failed!");
             return new Response<>(0, "Get the Get Food Request Failed!", null);
         }
         //车次途经的车站
         /**--------------------------------------------------------------------------------------*/
-        HttpEntity requestEntityGetRouteResult = new HttpEntity(null, null);
-        String travel_service_url = getServiceUrl("ts-travel-service");
+        HttpEntity requestEntityGetRouteResult = new HttpEntity(null, headers);
         ResponseEntity<Response<Route>> reGetRouteResult = restTemplate.exchange(
-                travel_service_url + "/api/v1/travelservice/routes/" + tripId,
+                "http://ts-travel-service:12346/api/v1/travelservice/routes/" + tripId,
                 HttpMethod.GET,
                 requestEntityGetRouteResult,
                 new ParameterizedTypeReference<Response<Route>>() {
@@ -262,8 +163,17 @@ public class FoodServiceImpl implements FoodService {
             //去除不经过的站，如果起点终点有的话
             if (null != startStation && !"".equals(startStation)) {
                 /**--------------------------------------------------------------------------------------*/
+                HttpEntity requestEntityStartStationId = new HttpEntity(headers);
+                ResponseEntity<Response<String>> reStartStationId = restTemplate.exchange(
+                        "http://ts-station-service:12345/api/v1/stationservice/stations/id/" + startStation,
+                        HttpMethod.GET,
+                        requestEntityStartStationId,
+                        new ParameterizedTypeReference<Response<String>>() {
+                        });
+                Response<String> startStationId = reStartStationId.getBody();
+
                 for (int i = 0; i < stations.size(); i++) {
-                    if (stations.get(i).equals(startStation)) {
+                    if (stations.get(i).equals(startStationId.getData())) {
                         break;
                     } else {
                         stations.remove(i);
@@ -272,8 +182,17 @@ public class FoodServiceImpl implements FoodService {
             }
             if (null != endStation && !"".equals(endStation)) {
                 /**--------------------------------------------------------------------------------------*/
+                HttpEntity requestEntityEndStationId = new HttpEntity(headers);
+                ResponseEntity<Response<String>> reEndStationId = restTemplate.exchange(
+                        "http://ts-station-service:12345/api/v1/stationservice/stations/id/" + endStation,
+                        HttpMethod.GET,
+                        requestEntityEndStationId,
+                        new ParameterizedTypeReference<Response<String>>() {
+                        });
+                Response endStationId = reEndStationId.getBody();
+
                 for (int i = stations.size() - 1; i >= 0; i--) {
-                    if (stations.get(i).equals(endStation)) {
+                    if (stations.get(i).equals(endStationId.getData())) {
                         break;
                     } else {
                         stations.remove(i);
@@ -281,28 +200,25 @@ public class FoodServiceImpl implements FoodService {
                 }
             }
 
-            HttpEntity requestEntityFoodStoresListResult = new HttpEntity(stations, null);
-            String station_food_service_url = getServiceUrl("ts-station-food-service");
-            ResponseEntity<Response<List<StationFoodStore>>> reFoodStoresListResult = restTemplate.exchange(
-                     station_food_service_url + "/api/v1/stationfoodservice/stationfoodstores",
+            HttpEntity requestEntityFoodStoresListResult = new HttpEntity(stations, headers);
+            ResponseEntity<Response<List<FoodStore>>> reFoodStoresListResult = restTemplate.exchange(
+                    "http://ts-food-map-service:18855/api/v1/foodmapservice/foodstores",
                     HttpMethod.POST,
                     requestEntityFoodStoresListResult,
-                    new ParameterizedTypeReference<Response<List<StationFoodStore>>>() {
+                    new ParameterizedTypeReference<Response<List<FoodStore>>>() {
                     });
-            List<StationFoodStore> stationFoodStoresListResult = reFoodStoresListResult.getBody().getData();
-            if (stationFoodStoresListResult != null && !stationFoodStoresListResult.isEmpty()) {
-                for (String station : stations) {
-                    List<StationFoodStore> res = stationFoodStoresListResult.stream()
-                            .filter(stationFoodStore -> (stationFoodStore.getStationName().equals(station)))
+            List<FoodStore> foodStoresListResult = reFoodStoresListResult.getBody().getData();
+            if (foodStoresListResult != null && !foodStoresListResult.isEmpty()) {
+                for (String stationId : stations) {
+                    List<FoodStore> res = foodStoresListResult.stream()
+                            .filter(foodStore -> (foodStore.getStationId().equals(stationId)))
                             .collect(Collectors.toList());
-                    foodStoreListMap.put(station, res);
+                    foodStoreListMap.put(stationId, res);
                 }
             } else {
-                FoodServiceImpl.LOGGER.error("[getAllFood][Get the Get Food Request Failed!][foodStoresListResult is null][date: {}, tripId: {}]", date, tripId);
                 return new Response<>(0, "Get All Food Failed", allTripFood);
             }
         } else {
-            FoodServiceImpl.LOGGER.error("[getAllFood][Get the Get Food Request Failed!][station status error][date: {}, tripId: {}]", date, tripId);
             return new Response<>(0, "Get All Food Failed", allTripFood);
         }
         allTripFood.setTrainFoodList(trainFoodList);

@@ -2,7 +2,7 @@ package plan.service;
 
 import edu.fudan.common.util.Response;
 import org.springframework.http.HttpHeaders;
-import edu.fudan.common.entity.RoutePlanInfo;
+import plan.entity.RoutePlanInfo;
 
 /**
  * @author fdse

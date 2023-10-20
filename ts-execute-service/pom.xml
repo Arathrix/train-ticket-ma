@@ -15,7 +15,7 @@
         <groupId>org.services</groupId>
         <artifactId>ts-service</artifactId>
         <version>0.1.0</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../</relativePath>
     </parent>
 
     <properties>
@@ -30,6 +30,7 @@
             <version>0.1.0</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>

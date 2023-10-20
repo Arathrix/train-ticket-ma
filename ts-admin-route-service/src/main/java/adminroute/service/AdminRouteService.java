@@ -1,6 +1,6 @@
 package adminroute.service;
 
-import edu.fudan.common.entity.RouteInfo;
+import adminroute.entity.RouteInfo;
 import edu.fudan.common.util.Response;
 import org.springframework.http.HttpHeaders;
 

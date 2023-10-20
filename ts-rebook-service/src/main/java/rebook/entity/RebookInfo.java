@@ -1,6 +1,5 @@
 package rebook.entity;
 
-import edu.fudan.common.util.StringUtils;
 import lombok.Data;
 
 import javax.validation.Valid;
@@ -35,7 +34,7 @@ public class RebookInfo {
 
     @Valid
     @NotNull
-    private String date;
+    private Date date;
 
     public RebookInfo(){
         //Default Constructor
@@ -44,7 +43,7 @@ public class RebookInfo {
         this.oldTripId = "";
         this.tripId = "";
         this.seatType = 0;
-        this.date = StringUtils.Date2String(new Date());
+        this.date = new Date();
     }
 
 }

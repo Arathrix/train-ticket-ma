@@ -22,12 +22,9 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.validation</groupId>
-            <artifactId>jakarta.validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-spring-jaeger-web-starter</artifactId>
+            <version>0.2.2</version>
         </dependency>
     </dependencies>
     <build>

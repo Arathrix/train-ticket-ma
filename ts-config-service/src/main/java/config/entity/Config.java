@@ -1,9 +1,9 @@
 package config.entity;
 
 import lombok.Data;
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Entity;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  * @author fdse
  */
 @Data
-@Entity
+@Document(collection="config")
 public class Config {
     @Valid
     @Id

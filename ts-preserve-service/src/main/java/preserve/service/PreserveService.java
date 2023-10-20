@@ -2,7 +2,7 @@ package preserve.service;
 
 import edu.fudan.common.util.Response;
 import org.springframework.http.HttpHeaders;
-import edu.fudan.common.entity.OrderTicketsInfo;
+import preserve.entity.OrderTicketsInfo;
 
 /**
  * @author fdse

@@ -25,11 +25,11 @@ public class NotificationServiceImpl implements NotificationService{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
-    String email = "trainticket_notify@163.com";
+    String email = "fdse_microservices@163.com";
     String username = "username";
-    String startPlace = "startPlace";
+    String startingPlace = "startingPlace";
     String endPlace = "endPlace";
-    String startTime = "startTime";
+    String startingTime = "startingTime";
     String seatClass = "seatClass";
     String seatNumber = "seatNumber";
 
@@ -42,9 +42,9 @@ public class NotificationServiceImpl implements NotificationService{
 
         Map<String, Object> model = new HashMap<>();
         model.put(username, info.getUsername());
-        model.put(startPlace,info.getStartPlace());
+        model.put(startingPlace,info.getStartingPlace());
         model.put(endPlace,info.getEndPlace());
-        model.put(startTime,info.getStartTime());
+        model.put(startingTime,info.getStartingTime());
         model.put("date",info.getDate());
         model.put(seatClass,info.getSeatClass());
         model.put(seatNumber,info.getSeatNumber());
@@ -55,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService{
             mailService.sendEmail(mail,"preserve_success.ftl");
             return true;
         } catch (Exception e) {
-            LOGGER.error("[preserveSuccess][mailService.sendEmai][Exception: {}]", e.getMessage());
+            LOGGER.error(e.getMessage());
             return false;
         }
     }
@@ -69,9 +69,9 @@ public class NotificationServiceImpl implements NotificationService{
 
         Map<String, Object> model = new HashMap<>();
         model.put(username, info.getUsername());
-        model.put(startPlace,info.getStartPlace());
+        model.put(startingPlace,info.getStartingPlace());
         model.put(endPlace,info.getEndPlace());
-        model.put(startTime,info.getStartTime());
+        model.put(startingTime,info.getStartingTime());
         model.put("date",info.getDate());
         model.put(seatClass,info.getSeatClass());
         model.put(seatNumber,info.getSeatNumber());
@@ -82,7 +82,7 @@ public class NotificationServiceImpl implements NotificationService{
             mailService.sendEmail(mail,"order_create_success.ftl");
             return true;
         } catch (Exception e) {
-            LOGGER.error("[orderCreateSuccess][mailService.sendEmai][Exception: {}]", e.getMessage());
+            LOGGER.error(e.getMessage());
             return false;
         }
     }
@@ -96,9 +96,9 @@ public class NotificationServiceImpl implements NotificationService{
 
         Map<String, Object> model = new HashMap<>();
         model.put(username, info.getUsername());
-        model.put(startPlace,info.getStartPlace());
+        model.put(startingPlace,info.getStartingPlace());
         model.put(endPlace,info.getEndPlace());
-        model.put(startTime,info.getStartTime());
+        model.put(startingTime,info.getStartingTime());
         model.put("date",info.getDate());
         model.put(seatClass,info.getSeatClass());
         model.put(seatNumber,info.getSeatNumber());
@@ -109,7 +109,7 @@ public class NotificationServiceImpl implements NotificationService{
             mailService.sendEmail(mail,"order_changed_success.ftl");
             return true;
         } catch (Exception e) {
-            LOGGER.error("[orderChangedSuccess][mailService.sendEmai][Exception: {}]", e.getMessage());
+            LOGGER.error(e.getMessage());
             return false;
         }
     }
@@ -130,7 +130,7 @@ public class NotificationServiceImpl implements NotificationService{
             mailService.sendEmail(mail,"order_cancel_success.ftl");
             return true;
         } catch (Exception e) {
-            LOGGER.error("[orderCancelSuccess][mailService.sendEmai][Exception: {}]", e.getMessage());
+            LOGGER.error(e.getMessage());
             return false;
         }
     }

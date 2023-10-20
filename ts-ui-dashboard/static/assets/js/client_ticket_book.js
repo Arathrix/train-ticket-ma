@@ -125,12 +125,10 @@ function getAssuranceType() {
             if (result.status == 1) {
                 var obj = result.data;
                 var types = document.getElementById("assurance_type");
-                //option0 = No Assurance
                 var opt0 = document.createElement("option");
                 opt0.value = 0;
                 opt0.innerText = "No Assurance";
                 types.appendChild(opt0);
-                //use data to build options
                 for (var i = 0, l = obj.length; i < l; i++) {
                     var opt = document.createElement("option");
                     opt.value = obj[i]["index"];
@@ -203,9 +201,9 @@ function initFoodSelect(tripId, from, to, date) {
 
             if (result.status == 1) {
 
-                var trainFoodList = result.data.trainFoodList;
+                var trainFoodList = result.data.trainFoodList[0]['foodList'];
                 console.log("trainFoodList:");
-                console.log(trainFoodList);
+                console.log(trainFoodList[0]);
 
                 $("#train-food-type-list").html("");
                 $("#food-station-list").html("");

@@ -103,9 +103,9 @@ app.controller('indexCtrl', function ($scope, $http, $window, loadDataService) {
                     data: {
                         userName: $scope.add_user_name,
                         password: $scope.add_user_password,
-                        gender: $('#add_user_gender').find("option:selected").val(),
+                        gender: $scope.add_user_gender,
                         email: $scope.add_user_email,
-                        documentType: $('#add_user_document_type').find("option:selected").val(),
+                        documentType: $scope.add_user_document_type,
                         documentNum: $scope.add_user_document_number
                     }
                 }).success(function (data, status, headers, config) {
@@ -145,7 +145,7 @@ app.controller('indexCtrl', function ($scope, $http, $window, loadDataService) {
                     headers: {"Authorization": "Bearer " + sessionStorage.getItem("admin_token")},
                     withCredentials: true,
                     data: {
-                        userId: $scope.update_user_id,
+                        accountId: $scope.update_user_id,
                         userName: $scope.update_user_name,
                         password: $scope.update_user_password,
                         gender: $scope.update_user_gender,

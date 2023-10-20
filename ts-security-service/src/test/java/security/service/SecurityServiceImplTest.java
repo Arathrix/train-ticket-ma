@@ -1,6 +1,5 @@
 package security.service;
 
-import edu.fudan.common.entity.OrderSecurity;
 import edu.fudan.common.util.Response;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,11 +13,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+import security.entity.OrderSecurity;
 import security.entity.SecurityConfig;
 import security.repository.SecurityRepository;
 
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.UUID;
 
 @RunWith(JUnit4.class)
@@ -76,7 +75,7 @@ public class SecurityServiceImplTest {
     @Test
     public void testModifySecurityConfig1() {
         SecurityConfig sc = new SecurityConfig();
-        Mockito.when(securityRepository.findById(Mockito.any(UUID.class).toString())).thenReturn(null);
+        Mockito.when(securityRepository.findById(Mockito.any(UUID.class))).thenReturn(null);
         Response result = securityServiceImpl.modifySecurityConfig(sc, headers);
         Assert.assertEquals(new Response<>(0, "Security Config Not Exist", null), result);
     }
@@ -84,7 +83,7 @@ public class SecurityServiceImplTest {
     @Test
     public void testModifySecurityConfig2() {
         SecurityConfig sc = new SecurityConfig();
-        Mockito.when(securityRepository.findById(Mockito.any(UUID.class).toString())).thenReturn(Optional.of(sc));
+        Mockito.when(securityRepository.findById(Mockito.any(UUID.class))).thenReturn(sc);
         Mockito.when(securityRepository.save(Mockito.any(SecurityConfig.class))).thenReturn(null);
         Response result = securityServiceImpl.modifySecurityConfig(sc, headers);
         Assert.assertEquals(new Response<>(1, "Success", sc), result);
@@ -93,8 +92,8 @@ public class SecurityServiceImplTest {
     @Test
     public void testDeleteSecurityConfig1() {
         UUID id = UUID.randomUUID();
-        Mockito.doNothing().doThrow(new RuntimeException()).when(securityRepository).deleteById(Mockito.any(UUID.class).toString());
-        Mockito.when(securityRepository.findById(Mockito.any(UUID.class).toString())).thenReturn(null);
+        Mockito.doNothing().doThrow(new RuntimeException()).when(securityRepository).deleteById(Mockito.any(UUID.class));
+        Mockito.when(securityRepository.findById(Mockito.any(UUID.class))).thenReturn(null);
         Response result = securityServiceImpl.deleteSecurityConfig(id.toString(), headers);
         Assert.assertEquals(new Response<>(1, "Success", id.toString()), result);
     }
@@ -103,8 +102,8 @@ public class SecurityServiceImplTest {
     public void testDeleteSecurityConfig2() {
         UUID id = UUID.randomUUID();
         SecurityConfig sc = new SecurityConfig();
-        Mockito.doNothing().doThrow(new RuntimeException()).when(securityRepository).deleteById(Mockito.any(UUID.class).toString());
-        Mockito.when(securityRepository.findById(Mockito.any(UUID.class).toString())).thenReturn(Optional.of(sc));
+        Mockito.doNothing().doThrow(new RuntimeException()).when(securityRepository).deleteById(Mockito.any(UUID.class));
+        Mockito.when(securityRepository.findById(Mockito.any(UUID.class))).thenReturn(sc);
         Response result = securityServiceImpl.deleteSecurityConfig(id.toString(), headers);
         Assert.assertEquals("Reason Not clear", result.getMsg());
     }

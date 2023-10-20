@@ -68,7 +68,7 @@ trainModule.controller("trainCtrl", function ($scope, $http, loadDataService, $w
     };
 
     $scope.updateTrain = function (train) {
-        $('#update-train-name').val(train.name);
+        $('#update-train-id').val(train.id);
         $('#update-train-economy-class').val(train.economyClass);
         $('#update-train-confort-class').val(train.confortClass);
         $('#update-train-average-speed').val(train.averageSpeed);
@@ -79,7 +79,6 @@ trainModule.controller("trainCtrl", function ($scope, $http, loadDataService, $w
                 if (parseInt($('#update-train-economy-class').val()) && parseInt($('#update-train-confort-class').val()) && parseInt($('#update-train-average-speed').val())) {
                     var data = new Object();
                     data.id = train.id;
-                    data.name = train.name;
                     data.economyClass = parseInt($('#update-train-economy-class').val());
                     data.confortClass = parseInt($('#update-train-confort-class').val());
                     data.averageSpeed = parseInt($('#update-train-average-speed').val());
@@ -111,7 +110,7 @@ trainModule.controller("trainCtrl", function ($scope, $http, loadDataService, $w
     };
 
     $scope.addTrain = function () {
-        $('#add-train-type-name').val("");
+        $('#add-train-id').val("");
         $('#add-train-economy-class').val("");
         $('#add-train-confort-class').val("");
         $('#add-train-average-speed').val("");
@@ -121,7 +120,7 @@ trainModule.controller("trainCtrl", function ($scope, $http, loadDataService, $w
             onConfirm: function (options) {
                 if (parseInt($('#add-train-economy-class').val()) && parseInt($('#add-train-confort-class').val()) && parseInt($('#add-train-average-speed').val())) {
                     var data = new Object();
-                    data.name = $('#add-train-type-name').val();
+                    data.id = $('#add-train-id').val();
                     data.economyClass = parseInt($('#add-train-economy-class').val());
                     data.confortClass = parseInt($('#add-train-confort-class').val());
                     data.averageSpeed = parseInt($('#add-train-average-speed').val());

@@ -31,15 +31,13 @@ var adSearch = new Vue({
         },
         adSearchPath() {
             var advanceSearchInfo = new Object();
-            advanceSearchInfo.startPlace = this.startPlace;
+            advanceSearchInfo.startingPlace = this.startPlace;
             advanceSearchInfo.endPlace = this.treminalPlace;
             advanceSearchInfo.departureTime = this.selectedDate;
             if (advanceSearchInfo.departureTime == null || this.checkDateFormat(advanceSearchInfo.departureTime) == false) {
                 alert("Departure Date Format Wrong.");
                 return;
             }
-            // add hh:mm:ss to date
-            advanceSearchInfo.departureTime = this.selectedDate + " 00:00:00";
             var advanceSearchData = JSON.stringify(advanceSearchInfo);
 
             var selectType = this.selectedSearchType;
@@ -73,7 +71,7 @@ var adSearch = new Vue({
                         that.adTicketSearchResult = obj;
                         that.initSeatClaass(obj.length);
                         for (var i = 0, l = obj.length; i < l; i++) {
-                            that.adTicketSearchResult[i].startTime = that.flow_advance_convertNumberToTimeString(obj[i]["startTime"]);
+                            that.adTicketSearchResult[i].startingTime = that.flow_advance_convertNumberToTimeString(obj[i]["startingTime"]);
                             that.adTicketSearchResult[i].endTime = that.flow_advance_convertNumberToTimeString(obj[i]["endTime"]);
                         }
                     }
@@ -114,7 +112,7 @@ var adSearch = new Vue({
                         that.adTicketSearchResult = obj;
                         that.initSeatClaass(obj.length);
                         for (var i = 0; i < obj.length; i++) {
-                            that.adTicketSearchResult[i].startTime = that.flow_advance_convertNumberToTimeString(obj[i]["startTime"]);
+                            that.adTicketSearchResult[i].startingTime = that.flow_advance_convertNumberToTimeString(obj[i]["startingTime"]);
                             that.adTicketSearchResult[i].endTime = that.flow_advance_convertNumberToTimeString(obj[i]["endTime"]);
                         }
                     }
@@ -150,7 +148,7 @@ var adSearch = new Vue({
                         that.adTicketSearchResult = obj;
                         that.initSeatClaass(obj.length);
                         for (var i = 0, l = obj.length; i < l; i++) {
-                            that.adTicketSearchResult[i].startTime = that.flow_advance_convertNumberToTimeString(obj[i]["startTime"]);
+                            that.adTicketSearchResult[i].startingTime = that.flow_advance_convertNumberToTimeString(obj[i]["startingTime"]);
                             that.adTicketSearchResult[i].endTime = that.flow_advance_convertNumberToTimeString(obj[i]["endTime"]);
                         }
                      //   flow_advance_addListenerToBookingTable();

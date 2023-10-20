@@ -1,9 +1,11 @@
 package adminorder.controller;
 
-import edu.fudan.common.entity.*;
+import adminorder.entity.*;
 import adminorder.service.AdminOrderService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import edu.fudan.common.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,41 +18,46 @@ import static org.springframework.http.ResponseEntity.ok;
  */
 @RestController
 @RequestMapping("/api/v1/adminorderservice")
+@DefaultProperties(defaultFallback = "fallback", commandProperties = {
+        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")
+})
 public class AdminOrderController {
 
     @Autowired
     AdminOrderService adminOrderService;
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminOrderController.class);
-
     @GetMapping(path = "/welcome")
     public String home(@RequestHeader HttpHeaders headers) {
-        return "Welcome to [Admin Order Service] !";
+        return "Welcome to [ AdminOrder Service ] !";
     }
 
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/adminorder")
+    @HystrixCommand
     public HttpEntity getAllOrders(@RequestHeader HttpHeaders headers) {
-        logger.info("[getAllOrders][Get all orders][getAllOrders]");
         return ok(adminOrderService.getAllOrders(headers));
     }
 
     @PostMapping(value = "/adminorder")
+    @HystrixCommand
     public HttpEntity addOrder(@RequestBody Order request, @RequestHeader HttpHeaders headers) {
-        logger.info("[addOrder][Add new order][AccountID: {}]", request.getAccountId());
         return ok(adminOrderService.addOrder(request, headers));
     }
 
     @PutMapping(value = "/adminorder")
+    @HystrixCommand
     public HttpEntity updateOrder(@RequestBody Order request, @RequestHeader HttpHeaders headers) {
-        logger.info("[updateOrder][Update order][AccountID: {}, OrderId: {}]", request.getAccountId(), request.getId());
         return ok(adminOrderService.updateOrder(request, headers));
     }
 
     @DeleteMapping(value = "/adminorder/{orderId}/{trainNumber}")
+    @HystrixCommand
     public HttpEntity deleteOrder(@PathVariable String orderId, @PathVariable String trainNumber, @RequestHeader HttpHeaders headers) {
-        logger.info("[deleteOrder][Delete order][OrderId: {}, TrainNumber: {}]", orderId, trainNumber);
         return ok(adminOrderService.deleteOrder(orderId, trainNumber, headers));
     }
 
+
+    private HttpEntity fallback() {
+        return ok(new Response<>());
+    }
 }

@@ -1,7 +1,5 @@
 package travel2.entity;
 
-import edu.fudan.common.entity.Route;
-import edu.fudan.common.entity.TrainType;
 import lombok.Data;
 
 /**

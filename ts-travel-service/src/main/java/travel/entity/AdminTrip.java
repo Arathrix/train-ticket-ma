@@ -1,9 +1,6 @@
 package travel.entity;
 
-import edu.fudan.common.entity.TrainType;
-import edu.fudan.common.entity.Route;
 import lombok.Data;
-
 
 /**
  * @author fdse

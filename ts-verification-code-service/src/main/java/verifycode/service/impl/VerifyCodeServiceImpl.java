@@ -2,6 +2,7 @@ package verifycode.service.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +26,7 @@ import java.util.concurrent.TimeUnit;
  * @author fdse
  */
 @Service
+@Slf4j
 public class VerifyCodeServiceImpl implements VerifyCodeService {
 
     public static final int CAPTCHA_EXPIRED = 1000;
@@ -93,7 +95,6 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
         Cookie cookie = CookieUtil.getCookieByName(request, ysbCaptcha);
         String cookieId;
         if (cookie == null) {
-            VerifyCodeServiceImpl.LOGGER.warn("[getImageCode][Get image code warn.Cookie not found][Path Info: {}]",request.getPathInfo());
             cookieId = UUID.randomUUID().toString().replace("-", "").toUpperCase();
             CookieUtil.addCookie(response, ysbCaptcha, cookieId, CAPTCHA_EXPIRED);
         } else {
@@ -104,7 +105,7 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
                 cookieId = cookie.getValue();
             }
         }
-        VerifyCodeServiceImpl.LOGGER.info("[getImageCode][strEnsure: {}]", strEnsure);
+        VerifyCodeServiceImpl.LOGGER.info(" {}  ___ st", strEnsure);
         cacheCode.put(cookieId, strEnsure);
         return returnMap;
     }
@@ -115,7 +116,6 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
         Cookie cookie = CookieUtil.getCookieByName(request, ysbCaptcha);
         String cookieId;
         if (cookie == null) {
-            VerifyCodeServiceImpl.LOGGER.warn("[verifyCode][Verify code warn][Cookie not found][Path Info: {}]",request.getPathInfo());
             cookieId = UUID.randomUUID().toString().replace("-", "").toUpperCase();
             CookieUtil.addCookie(response, ysbCaptcha, cookieId, CAPTCHA_EXPIRED);
         } else {
@@ -123,9 +123,8 @@ public class VerifyCodeServiceImpl implements VerifyCodeService {
         }
 
         String code = cacheCode.getIfPresent(cookieId);
-        LOGGER.info("GET Code By cookieId " + cookieId + "   is :" + code);
+        log.info("GET Code By cookieId " + cookieId + "   is :" + code);
         if (code == null) {
-            VerifyCodeServiceImpl.LOGGER.warn("[verifyCode][Get image code warn][Code not found][CookieId: {}]",cookieId);
             return false;
         }
         if (code.equalsIgnoreCase(receivedCode)) {

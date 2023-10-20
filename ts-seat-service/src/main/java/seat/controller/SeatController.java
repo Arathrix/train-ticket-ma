@@ -1,12 +1,14 @@
 package seat.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import edu.fudan.common.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
-import edu.fudan.common.entity.Seat;
+import seat.entity.Seat;
 import seat.service.SeatService;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -16,12 +18,13 @@ import static org.springframework.http.ResponseEntity.ok;
  */
 @RestController
 @RequestMapping("/api/v1/seatservice")
+@DefaultProperties(defaultFallback = "fallback", commandProperties = {
+        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")
+})
 public class SeatController {
 
     @Autowired
     private SeatService seatService;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SeatController.class);
 
     @GetMapping(path = "/welcome")
     public String home() {
@@ -37,8 +40,8 @@ public class SeatController {
      */
     @CrossOrigin(origins = "*")
     @PostMapping(value = "/seats")
+    @HystrixCommand
     public HttpEntity create(@RequestBody Seat seatRequest, @RequestHeader HttpHeaders headers) {
-        SeatController.LOGGER.info("[distributeSeat][Create seat][TravelDate: {},TrainNumber: {},SeatType: {}]",seatRequest.getTravelDate(),seatRequest.getTrainNumber(),seatRequest.getSeatType());
         return ok(seatService.distributeSeat(seatRequest, headers));
     }
 
@@ -52,10 +55,14 @@ public class SeatController {
      */
     @CrossOrigin(origins = "*")
     @PostMapping(value = "/seats/left_tickets")
+    @HystrixCommand
     public HttpEntity getLeftTicketOfInterval(@RequestBody Seat seatRequest, @RequestHeader HttpHeaders headers) {
         // int
-        SeatController.LOGGER.info("[getLeftTicketOfInterval][Get left ticket of interval][TravelDate: {},TrainNumber: {},SeatType: {}]",seatRequest.getTravelDate(),seatRequest.getTrainNumber(),seatRequest.getSeatType());
         return ok(seatService.getLeftTicketOfInterval(seatRequest, headers));
     }
 
+
+    private HttpEntity fallback() {
+        return ok(new Response<>());
+    }
 }

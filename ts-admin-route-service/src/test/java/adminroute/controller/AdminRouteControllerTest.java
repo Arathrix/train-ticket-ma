@@ -1,6 +1,6 @@
 package adminroute.controller;
 
-import edu.fudan.common.entity.RouteInfo;
+import adminroute.entity.RouteInfo;
 import adminroute.service.AdminRouteService;
 import com.alibaba.fastjson.JSONObject;
 import edu.fudan.common.util.Response;
@@ -39,7 +39,8 @@ public class AdminRouteControllerTest {
     @Test
     public void testHome() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/adminrouteservice/welcome"))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Welcome to [ AdminRoute Service ] !"));
     }
 
     @Test

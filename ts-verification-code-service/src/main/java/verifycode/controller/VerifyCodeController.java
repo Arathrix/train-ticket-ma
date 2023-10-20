@@ -1,7 +1,6 @@
 package verifycode.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -20,8 +20,8 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/v1/verifycode")
+@Slf4j
 public class VerifyCodeController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VerifyCodeController.class);
 
     @Autowired
     private VerifyCodeService verifyCodeService;
@@ -30,7 +30,6 @@ public class VerifyCodeController {
     public void imageCode(@RequestHeader HttpHeaders headers,
                           HttpServletRequest request,
                           HttpServletResponse response) throws IOException {
-        VerifyCodeController.LOGGER.info("[imageCode][Image code]");
         OutputStream os = response.getOutputStream();
         Map<String, Object> map = verifyCodeService.getImageCode(60, 20, os, request, response, headers);
         String simpleCaptcha = "simpleCaptcha";
@@ -48,10 +47,7 @@ public class VerifyCodeController {
     @GetMapping(value = "/verify/{verifyCode}")
     public boolean verifyCode(@PathVariable String verifyCode, HttpServletRequest request,
                               HttpServletResponse response, @RequestHeader HttpHeaders headers) {
-        LOGGER.info("[verifyCode][receivedCode: {}]", verifyCode);
-
-        boolean result = verifyCodeService.verifyCode(request, response, verifyCode, headers);
-        LOGGER.info("[verifyCode][verify result: {}]", result);
-        return true;
+        log.info("receivedCode  " +verifyCode);
+        return verifyCodeService.verifyCode(request, response, verifyCode, headers);
     }
 }

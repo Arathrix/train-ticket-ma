@@ -3,7 +3,6 @@ package assurance.service;
 import edu.fudan.common.util.Response;
 import org.springframework.http.HttpHeaders;
 
-import javax.transaction.Transactional;
 import java.util.UUID;
 
 /**
@@ -46,7 +45,6 @@ public interface AssuranceService {
      * @param headers headers
      * @return Response
      */
-    @Transactional
     Response deleteById(UUID assuranceId, HttpHeaders headers);
 
     /**
@@ -56,7 +54,6 @@ public interface AssuranceService {
      * @param headers headers
      * @return Response
      */
-    @Transactional
     Response deleteByOrderId(UUID orderId, HttpHeaders headers);
 
     /**

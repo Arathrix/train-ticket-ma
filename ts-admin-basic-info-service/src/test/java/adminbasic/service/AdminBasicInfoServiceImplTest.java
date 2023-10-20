@@ -1,10 +1,6 @@
 package adminbasic.service;
 
 import adminbasic.entity.*;
-import edu.fudan.common.entity.Config;
-import edu.fudan.common.entity.Contacts;
-import edu.fudan.common.entity.Station;
-import edu.fudan.common.entity.TrainType;
 import edu.fudan.common.util.Response;
 import org.junit.Assert;
 import org.junit.Before;
@@ -115,7 +111,7 @@ public class AdminBasicInfoServiceImplTest {
                 HttpMethod.DELETE,
                 requestEntity,
                 Response.class)).thenReturn(re);
-        response = adminBasicInfoService.deleteStation(s.getId(), headers);
+        response = adminBasicInfoService.deleteStation(s, headers);
         Assert.assertEquals(new Response<>(null, null, null), response);
     }
 
@@ -261,7 +257,7 @@ public class AdminBasicInfoServiceImplTest {
                 HttpMethod.DELETE,
                 requestEntity,
                 Response.class)).thenReturn(re);
-        response = adminBasicInfoService.deletePrice(pi.getId(), headers);
+        response = adminBasicInfoService.deletePrice(pi, headers);
         Assert.assertEquals(new Response<>(null, null, null), response);
     }
 

@@ -14,7 +14,7 @@ import java.util.UUID;
 @ToString
 public class UserDto {
 
-    private String userId;
+    private UUID userId;
     
     private String userName;
 

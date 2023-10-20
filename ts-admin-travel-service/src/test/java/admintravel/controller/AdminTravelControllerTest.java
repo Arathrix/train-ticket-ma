@@ -1,8 +1,8 @@
 package admintravel.controller;
 
+import admintravel.entity.TravelInfo;
 import admintravel.service.AdminTravelService;
 import com.alibaba.fastjson.JSONObject;
-import edu.fudan.common.entity.TravelInfo;
 import edu.fudan.common.util.Response;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +39,8 @@ public class AdminTravelControllerTest {
     @Test
     public void testHome() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/admintravelservice/welcome"))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string("Welcome to [ AdminTravel Service ] !"));
     }
 
     @Test

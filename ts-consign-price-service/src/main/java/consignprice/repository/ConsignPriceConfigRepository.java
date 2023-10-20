@@ -1,14 +1,15 @@
 package consignprice.repository;
 
 import consignprice.entity.ConsignPrice;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
  * @author fdse
  */
 @Repository
-public interface ConsignPriceConfigRepository extends CrudRepository<ConsignPrice, String> {
+public interface ConsignPriceConfigRepository extends MongoRepository<ConsignPrice, String> {
 
     /**
      * find by index
@@ -16,7 +17,7 @@ public interface ConsignPriceConfigRepository extends CrudRepository<ConsignPric
      * @param index index
      * @return ConsignPrice
      */
-//    @Query("{ 'index': ?0 }")
+    @Query("{ 'index': ?0 }")
     ConsignPrice findByIndex(int index);
 
 }

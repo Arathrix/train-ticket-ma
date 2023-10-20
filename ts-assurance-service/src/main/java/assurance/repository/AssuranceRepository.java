@@ -1,18 +1,17 @@
 package assurance.repository;
 
 import assurance.entity.Assurance;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author fdse
  */
 @Repository
-public interface AssuranceRepository  extends CrudRepository<Assurance, String> {
+public interface AssuranceRepository  extends MongoRepository<Assurance, String> {
 
     /**
      * find by id
@@ -20,7 +19,7 @@ public interface AssuranceRepository  extends CrudRepository<Assurance, String> 
      * @param id id
      * @return Assurance
      */
-    Optional<Assurance> findById(String id);
+    Assurance findById(UUID id);
 
     /**
      * find by order id
@@ -28,7 +27,8 @@ public interface AssuranceRepository  extends CrudRepository<Assurance, String> 
      * @param orderId order id
      * @return Assurance
      */
-    Assurance findByOrderId(String orderId);
+    @Query("{ 'orderId' : ?0 }")
+    Assurance findByOrderId(UUID orderId);
 
     /**
      * delete by id
@@ -36,8 +36,7 @@ public interface AssuranceRepository  extends CrudRepository<Assurance, String> 
      * @param id id
      * @return null
      */
-    @Transactional
-    void deleteById(String id);
+    void deleteById(UUID id);
 
     /**
      * remove assurance by order id
@@ -45,8 +44,7 @@ public interface AssuranceRepository  extends CrudRepository<Assurance, String> 
      * @param orderId order id
      * @return null
      */
-    @Transactional
-    void removeAssuranceByOrderId(String orderId);
+    void removeAssuranceByOrderId(UUID orderId);
 
     /**
      * find all

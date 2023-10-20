@@ -1,30 +1,30 @@
 package order.repository;
 
 import order.entity.Order;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
  * @author fdse
  */
 @Repository
-public interface OrderRepository extends JpaRepository<Order, String> {
+public interface OrderRepository extends MongoRepository<Order, String> {
 
-    @Override
-    Optional<Order> findById(String id);
+    @Query("{ 'id': ?0 }")
+    Order findById(UUID id);
 
     @Override
     ArrayList<Order> findAll();
 
-    ArrayList<Order> findByAccountId(String accountId);
+    @Query("{ 'accountId' : ?0 }")
+    ArrayList<Order> findByAccountId(UUID accountId);
 
-    ArrayList<Order> findByTravelDateAndTrainNumber(String travelDate,String trainNumber);
+    @Query("{ 'travelDate' : ?0 , trainNumber : ?1 }")
+    ArrayList<Order> findByTravelDateAndTrainNumber(Date travelDate,String trainNumber);
 
-    @Override
-    void deleteById(String id);
+    void deleteById(UUID id);
 }

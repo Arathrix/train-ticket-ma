@@ -1,25 +1,23 @@
 package price.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 import price.entity.PriceConfig;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author fdse
  */
 @Repository
-public interface PriceConfigRepository extends CrudRepository<PriceConfig, String> {
+public interface PriceConfigRepository extends MongoRepository<PriceConfig, String> {
 
-    @Override
-    Optional<PriceConfig> findById(String id);
+    @Query("{ 'id': ?0 }")
+    PriceConfig findById(UUID id);
 
+    @Query("{ 'routeId': ?0 , 'trainType': ?1 }")
     PriceConfig findByRouteIdAndTrainType(String routeId,String trainType);
-
-    @Query(value="SELECT * FROM price_config WHERE route_id IN ?1 AND train_type IN ?2", nativeQuery = true)
-    List<PriceConfig> findByRouteIdsAndTrainTypes(List<String> routeIds, List<String> trainTypes);
 
     @Override
     List<PriceConfig> findAll();

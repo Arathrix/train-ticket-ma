@@ -1,7 +1,7 @@
 package execute.service;
 
 import edu.fudan.common.util.Response;
-import edu.fudan.common.entity.Order;
+import execute.entity.Order;
 import execute.serivce.ExecuteServiceImpl;
 import org.junit.Assert;
 import org.junit.Before;

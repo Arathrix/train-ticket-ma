@@ -1,7 +1,8 @@
 package order.controller;
 
-import edu.fudan.common.entity.Seat;
-import edu.fudan.common.util.StringUtils;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import edu.fudan.common.util.Response;
 import order.entity.*;
 import order.service.OrderService;
 import org.slf4j.Logger;
@@ -36,14 +37,15 @@ public class OrderController {
 
     @PostMapping(value = "/order/tickets")
     public HttpEntity getTicketListByDateAndTripId(@RequestBody Seat seatRequest, @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[getSoldTickets][Get Sold Ticket][Travel Date: {}]", seatRequest.getTravelDate().toString());
+        OrderController.LOGGER.info("[Order Service][Get Sold Ticket] Date: {}", seatRequest.getTravelDate().toString());
         return ok(orderService.getSoldTickets(seatRequest, headers));
     }
 
     @CrossOrigin(origins = "*")
     @PostMapping(path = "/order")
     public HttpEntity createNewOrder(@RequestBody Order createOrder, @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[createNewOrder][Create Order][from {} to {} at {}]", createOrder.getFrom(), createOrder.getTo(), createOrder.getTravelDate());
+        OrderController.LOGGER.info("[Order Service][Create Order] Create Order form {} ---> {} at {}", createOrder.getFrom(), createOrder.getTo(), createOrder.getTravelDate());
+        OrderController.LOGGER.info("[Order Service][Verify Login] Success");
         return ok(orderService.create(createOrder, headers));
     }
 
@@ -57,30 +59,34 @@ public class OrderController {
     @PostMapping(path = "/order/query")
     public HttpEntity queryOrders(@RequestBody OrderInfo qi,
                                   @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[queryOrders][Query Orders][for LoginId :{}]", qi.getLoginId());
+        OrderController.LOGGER.info("[Order Other Service][Query Orders] Query Orders for {}", qi.getLoginId());
+        OrderController.LOGGER.info("[Order Other Service][Verify Login] Success");
         return ok(orderService.queryOrders(qi, qi.getLoginId(), headers));
     }
 
     @CrossOrigin(origins = "*")
     @PostMapping(path = "/order/refresh")
+    @HystrixCommand(fallbackMethod = "queryOrdersForRefreshFallback", commandProperties = {
+            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")
+    })
     public HttpEntity queryOrdersForRefresh(@RequestBody OrderInfo qi,
                                             @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[queryOrdersForRefresh][Query Orders][for LoginId:{}]", qi.getLoginId());
+        OrderController.LOGGER.info("[Order Other Service][Query Orders] Query Orders for {}", qi.getLoginId());
         return ok(orderService.queryOrdersForRefresh(qi, qi.getLoginId(), headers));
     }
 
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/order/{travelDate}/{trainNumber}")
-    public HttpEntity calculateSoldTicket(@PathVariable String travelDate, @PathVariable String trainNumber,
+    public HttpEntity calculateSoldTicket(@PathVariable Date travelDate, @PathVariable String trainNumber,
                                           @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[queryAlreadySoldOrders][Calculate Sold Tickets][Date: {} TrainNumber: {}]", travelDate, trainNumber);
-        return ok(orderService.queryAlreadySoldOrders(StringUtils.String2Date(travelDate), trainNumber, headers));
+        OrderController.LOGGER.info("[Order Other Service][Calculate Sold Tickets] Date: {} TrainNumber: {}", travelDate, trainNumber);
+        return ok(orderService.queryAlreadySoldOrders(travelDate, trainNumber, headers));
     }
 
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/order/price/{orderId}")
     public HttpEntity getOrderPrice(@PathVariable String orderId, @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[getOrderPrice][Get Order Price][OrderId: {}]", orderId);
+        OrderController.LOGGER.info("[Order Other Service][Get Order Price] Order Id: {}", orderId);
         // String
         return ok(orderService.getOrderPrice(orderId, headers));
     }
@@ -89,7 +95,7 @@ public class OrderController {
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/order/orderPay/{orderId}")
     public HttpEntity payOrder(@PathVariable String orderId, @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[payOrder][Pay Order][OrderId: {}]", orderId);
+        OrderController.LOGGER.info("[Order Other Service][Pay Order] Order Id: {}", orderId);
         // Order
         return ok(orderService.payOrder(orderId, headers));
     }
@@ -97,7 +103,7 @@ public class OrderController {
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/order/{orderId}")
     public HttpEntity getOrderById(@PathVariable String orderId, @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[getOrderById][Get Order By Id][OrderId: {}]", orderId);
+        OrderController.LOGGER.info("[Order Other Service][Get Order By Id] Order Id: {}", orderId);
         // Order
         return ok(orderService.getOrderById(orderId, headers));
     }
@@ -105,7 +111,7 @@ public class OrderController {
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/order/status/{orderId}/{status}")
     public HttpEntity modifyOrder(@PathVariable String orderId, @PathVariable int status, @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[modifyOrder][Modify Order Status][OrderId: {}]", orderId);
+        OrderController.LOGGER.info("[Order Other Service][Modify Order Status] Order Id: {}", orderId);
         // Order
         return ok(orderService.modifyOrder(orderId, status, headers));
     }
@@ -113,10 +119,10 @@ public class OrderController {
 
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/order/security/{checkDate}/{accountId}")
-    public HttpEntity securityInfoCheck(@PathVariable String checkDate, @PathVariable String accountId,
+    public HttpEntity securityInfoCheck(@PathVariable Date checkDate, @PathVariable String accountId,
                                         @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[checkSecurityAboutOrder][Security Info Get][AccountId:{}]", accountId);
-        return ok(orderService.checkSecurityAboutOrder(StringUtils.String2Date(checkDate), accountId, headers));
+        OrderController.LOGGER.info("[Order Other Service][Security Info Get] {}", accountId);
+        return ok(orderService.checkSecurityAboutOrder(checkDate, accountId, headers));
     }
 
 
@@ -125,7 +131,7 @@ public class OrderController {
     public HttpEntity saveOrderInfo(@RequestBody Order orderInfo,
                                     @RequestHeader HttpHeaders headers) {
 
-        OrderController.LOGGER.info("[saveChanges][Save Order Info][OrderId:{}]",orderInfo.getId());
+        OrderController.LOGGER.info("[Order Other Service][Verify Login] Success");
         return ok(orderService.saveChanges(orderInfo, headers));
     }
 
@@ -133,7 +139,6 @@ public class OrderController {
     @PutMapping(path = "/order/admin")
     public HttpEntity updateOrder(@RequestBody Order order, @RequestHeader HttpHeaders headers) {
         // Order
-        OrderController.LOGGER.info("[updateOrder][Update Order][OrderId: {}]", order.getId());
         return ok(orderService.updateOrder(order, headers));
     }
 
@@ -141,7 +146,7 @@ public class OrderController {
     @CrossOrigin(origins = "*")
     @DeleteMapping(path = "/order/{orderId}")
     public HttpEntity deleteOrder(@PathVariable String orderId, @RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[deleteOrder][Delete Order][OrderId: {}]", orderId);
+        OrderController.LOGGER.info("[Order Other Service][Delete Order] Order Id: {}", orderId);
         // Order
         return ok(orderService.deleteOrder(orderId, headers));
     }
@@ -151,9 +156,13 @@ public class OrderController {
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/order")
     public HttpEntity findAllOrder(@RequestHeader HttpHeaders headers) {
-        OrderController.LOGGER.info("[getAllOrders][Find All Order]");
+        OrderController.LOGGER.info("[Order Other Service][Find All Order]");
         // ArrayList<Order>
         return ok(orderService.getAllOrders(headers));
     }
 
+
+    private HttpEntity queryOrdersForRefreshFallback(@RequestBody OrderInfo qi, @RequestHeader HttpHeaders headers) {
+        return ok(new Response<>());
+    }
 }

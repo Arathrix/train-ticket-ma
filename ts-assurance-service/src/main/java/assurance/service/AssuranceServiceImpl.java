@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -27,68 +26,64 @@ public class AssuranceServiceImpl implements AssuranceService {
 
     @Override
     public Response findAssuranceById(UUID id, HttpHeaders headers) {
-        Optional<Assurance> assurance = assuranceRepository.findById(id.toString());
+        Assurance assurance = assuranceRepository.findById(id);
         if (assurance == null) {
-            AssuranceServiceImpl.LOGGER.warn("[findAssuranceById][find assurance][No content][assurance id: {}]", id);
-            return new Response<>(0, "No Content by this id", null);
+            return new Response<>(0, "No Conotent by this id", null);
         } else {
-            AssuranceServiceImpl.LOGGER.info("[findAssuranceById][Find Assurance][assurance id: {}]", id);
-            return new Response<>(1, "Find Assurance Success", assurance);
+            return new Response<>(1, "Find Assurace Success", assurance);
         }
     }
 
     @Override
     public Response findAssuranceByOrderId(UUID orderId, HttpHeaders headers) {
-        Assurance assurance = assuranceRepository.findByOrderId(orderId.toString());
+        Assurance assurance = assuranceRepository.findByOrderId(orderId);
         if (assurance == null) {
-            AssuranceServiceImpl.LOGGER.warn("[findAssuranceByOrderId][find assurance][No content][orderId: {}]", orderId);
             return new Response<>(0, "No Content by this orderId", null);
         } else {
-            AssuranceServiceImpl.LOGGER.info("[findAssuranceByOrderId][find assurance success][orderId: {}]", orderId);
-            return new Response<>(1, "Find Assurance Success", assurance);
+            return new Response<>(1, "Find Assurace Success", assurance);
         }
     }
 
     @Override
     public Response create(int typeIndex, String orderId, HttpHeaders headers) {
-        Assurance a = assuranceRepository.findByOrderId(orderId);
+        Assurance a = assuranceRepository.findByOrderId(UUID.fromString(orderId));
         AssuranceType at = AssuranceType.getTypeByIndex(typeIndex);
         if (a != null) {
-            AssuranceServiceImpl.LOGGER.error("[create][AddAssurance Fail][Assurance already exists][typeIndex: {}, orderId: {}]", typeIndex, orderId);
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Add&Delete-Service][AddAssurance] Fail.Assurance already exists");
             return new Response<>(0, "Fail.Assurance already exists", null);
         } else if (at == null) {
-            AssuranceServiceImpl.LOGGER.warn("[create][AddAssurance Fail][Assurance type doesn't exist][typeIndex: {}, orderId: {}]", typeIndex, orderId);
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Add&Delete-Service][AddAssurance] Fail.Assurance type doesn't exist");
             return new Response<>(0, "Fail.Assurance type doesn't exist", null);
         } else {
-            Assurance assurance = new Assurance(UUID.randomUUID().toString(), UUID.fromString(orderId).toString(), at);
+            Assurance assurance = new Assurance(UUID.randomUUID(), UUID.fromString(orderId), at);
             assuranceRepository.save(assurance);
-            AssuranceServiceImpl.LOGGER.info("[create][AddAssurance][Success]");
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Add&Delete-Service][AddAssurance] Success.");
             return new Response<>(1, "Success", assurance);
         }
     }
 
     @Override
     public Response deleteById(UUID assuranceId, HttpHeaders headers) {
-        assuranceRepository.deleteById(assuranceId.toString());
-        Optional<Assurance> a = assuranceRepository.findById(assuranceId.toString());
+        assuranceRepository.deleteById(assuranceId);
+        Assurance a = assuranceRepository.findById(assuranceId);
         if (a == null) {
-            AssuranceServiceImpl.LOGGER.info("[deleteById][DeleteAssurance success][assuranceId: {}]", assuranceId);
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Add&Delete-Service][DeleteAssurance] Success.");
             return new Response<>(1, "Delete Success with Assurance id", null);
         } else {
-            AssuranceServiceImpl.LOGGER.error("[deleteById][DeleteAssurance Fail][Assurance not clear][assuranceId: {}]", assuranceId);
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Add&Delete-Service][DeleteAssurance] Fail.Assurance not clear.");
             return new Response<>(0, "Fail.Assurance not clear", assuranceId);
         }
     }
 
     @Override
     public Response deleteByOrderId(UUID orderId, HttpHeaders headers) {
-        assuranceRepository.removeAssuranceByOrderId(orderId.toString());
-        Assurance isExistAssurace = assuranceRepository.findByOrderId(orderId.toString());
+        assuranceRepository.removeAssuranceByOrderId(orderId);
+        Assurance isExistAssurace = assuranceRepository.findByOrderId(orderId);
         if (isExistAssurace == null) {
-            AssuranceServiceImpl.LOGGER.info("[deleteByOrderId][DeleteAssurance Success][orderId: {}]", orderId);
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Add&Delete-Service][DeleteAssurance] Success.");
             return new Response<>(1, "Delete Success with Order Id", null);
         } else {
-            AssuranceServiceImpl.LOGGER.error("[deleteByOrderId][DeleteAssurance Fail][Assurance not clear][orderId: {}]", orderId);
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Add&Delete-Service][DeleteAssurance] Fail.Assurance not clear.");
             return new Response<>(0, "Fail.Assurance not clear", orderId);
         }
     }
@@ -96,19 +91,19 @@ public class AssuranceServiceImpl implements AssuranceService {
     @Override
     public Response modify(String assuranceId, String orderId, int typeIndex, HttpHeaders headers) {
         Response oldAssuranceResponse = findAssuranceById(UUID.fromString(assuranceId), headers);
-        Assurance oldAssurance =  ((Optional<Assurance>)oldAssuranceResponse.getData()).get();
+        Assurance oldAssurance = (Assurance) oldAssuranceResponse.getData();
         if (oldAssurance == null) {
-            AssuranceServiceImpl.LOGGER.error("[modify][ModifyAssurance Fail][Assurance not found][assuranceId: {}, orderId: {}, typeIndex: {}]", assuranceId, orderId, typeIndex);
+            AssuranceServiceImpl.LOGGER.info("[Assurance-Modify-Service][ModifyAssurance] Fail.Assurance not found.");
             return new Response<>(0, "Fail.Assurance not found.", null);
         } else {
             AssuranceType at = AssuranceType.getTypeByIndex(typeIndex);
             if (at != null) {
                 oldAssurance.setType(at);
                 assuranceRepository.save(oldAssurance);
-                AssuranceServiceImpl.LOGGER.info("[modify][ModifyAssurance Success][assuranceId: {}, orderId: {}, typeIndex: {}]", assuranceId, orderId, typeIndex);
+                AssuranceServiceImpl.LOGGER.info("[Assurance-Modify-Service][ModifyAssurance] Success.");
                 return new Response<>(1, "Modify Success", oldAssurance);
             } else {
-                AssuranceServiceImpl.LOGGER.error("[modify][ModifyAssurance Fail][Assurance Type not exist][assuranceId: {}, orderId: {}, typeIndex: {}]", assuranceId, orderId, typeIndex);
+                AssuranceServiceImpl.LOGGER.info("[Assurance-Modify-Service][ModifyAssurance] Fail.Assurance Type not exist.");
                 return new Response<>(0, "Assurance Type not exist", null);
             }
         }
@@ -128,10 +123,8 @@ public class AssuranceServiceImpl implements AssuranceService {
                 pa.setTypePrice(a.getType().getPrice());
                 result.add(pa);
             }
-            AssuranceServiceImpl.LOGGER.info("[getAllAssurances][find all assurance success][list size: {}]", as.size());
             return new Response<>(1, "Success", result);
         } else {
-            AssuranceServiceImpl.LOGGER.warn("[getAllAssurances][find all assurance][No content]");
             return new Response<>(0, "No Content, Assurance is empty", null);
         }
     }
@@ -148,10 +141,8 @@ public class AssuranceServiceImpl implements AssuranceService {
             atlist.add(atb);
         }
         if (!atlist.isEmpty()) {
-            AssuranceServiceImpl.LOGGER.info("[getAllAssuranceTypes][find all assurance type success][list size: {}]", atlist.size());
             return new Response<>(1, "Find All Assurance", atlist);
         } else {
-            AssuranceServiceImpl.LOGGER.warn("[getAllAssuranceTypes][find all assurance type][No content]");
             return new Response<>(0, "Assurance is Empty", null);
         }
     }

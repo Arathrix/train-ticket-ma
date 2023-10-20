@@ -1,9 +1,11 @@
 package consign.controller;
 
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import consign.entity.Consign;
 import consign.service.ConsignService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import edu.fudan.common.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,12 +20,13 @@ import static org.springframework.http.ResponseEntity.ok;
  */
 @RestController
 @RequestMapping("/api/v1/consignservice")
+@DefaultProperties(defaultFallback = "fallback", commandProperties = {
+        @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000")
+})
 public class ConsignController {
 
     @Autowired
     ConsignService service;
-
-    private static final Logger logger = LoggerFactory.getLogger(ConsignController.class);
 
     @GetMapping(path = "/welcome")
     public String home(@RequestHeader HttpHeaders headers) {
@@ -31,36 +34,37 @@ public class ConsignController {
     }
 
     @PostMapping(value = "/consigns")
+    @HystrixCommand
     public HttpEntity insertConsign(@RequestBody Consign request,
                                     @RequestHeader HttpHeaders headers) {
-        logger.info("[insertConsign][Insert consign record][id:{}]", request.getId());
         return ok(service.insertConsignRecord(request, headers));
     }
 
     @PutMapping(value = "/consigns")
+    @HystrixCommand
     public HttpEntity updateConsign(@RequestBody Consign request, @RequestHeader HttpHeaders headers) {
-        logger.info("[updateConsign][Update consign record][id: {}]", request.getId());
         return ok(service.updateConsignRecord(request, headers));
     }
 
     @GetMapping(value = "/consigns/account/{id}")
     public HttpEntity findByAccountId(@PathVariable String id, @RequestHeader HttpHeaders headers) {
-        logger.info("[findByAccountId][Find consign by account id][id: {}]", id);
         UUID newid = UUID.fromString(id);
         return ok(service.queryByAccountId(newid, headers));
     }
 
     @GetMapping(value = "/consigns/order/{id}")
     public HttpEntity findByOrderId(@PathVariable String id, @RequestHeader HttpHeaders headers) {
-        logger.info("[findByOrderId][Find consign by order id][id: {}]", id);
         UUID newid = UUID.fromString(id);
         return ok(service.queryByOrderId(newid, headers));
     }
 
     @GetMapping(value = "/consigns/{consignee}")
     public HttpEntity findByConsignee(@PathVariable String consignee, @RequestHeader HttpHeaders headers) {
-        logger.info("[findByConsignee][Find consign by consignee][consignee: {}]", consignee);
         return ok(service.queryByConsignee(consignee, headers));
     }
 
+
+    private HttpEntity fallback() {
+        return ok(new Response<>());
+    }
 }

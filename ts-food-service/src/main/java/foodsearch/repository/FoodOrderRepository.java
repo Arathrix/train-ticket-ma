@@ -1,26 +1,26 @@
 package foodsearch.repository;
 
 import foodsearch.entity.FoodOrder;
-
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface FoodOrderRepository extends CrudRepository<FoodOrder, String> {
+public interface FoodOrderRepository extends MongoRepository<FoodOrder, String> {
 
-    Optional<FoodOrder> findById(String id);
+    FoodOrder findById(UUID id);
 
-    FoodOrder findByOrderId(String orderId);
+    @Query("{ 'orderId' : ?0 }")
+    FoodOrder findByOrderId(UUID orderId);
 
     @Override
     List<FoodOrder> findAll();
 
     void deleteById(UUID id);
 
-    void deleteFoodOrderByOrderId(String id);
+    void deleteFoodOrderByOrderId(UUID id);
 
 }

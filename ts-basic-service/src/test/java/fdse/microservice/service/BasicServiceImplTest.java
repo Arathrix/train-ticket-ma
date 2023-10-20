@@ -1,8 +1,7 @@
 package fdse.microservice.service;
 
-import edu.fudan.common.entity.*;
 import edu.fudan.common.util.Response;
-import edu.fudan.common.util.StringUtils;
+import fdse.microservice.entity.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,16 +36,8 @@ public class BasicServiceImplTest {
 
     @Test
     public void testQueryForTravel() {
-        Trip trip = new Trip();
-        trip.setTripId(new TripId());
-        trip.setRouteId("route_id");
-        trip.setStartTime(StringUtils.Date2String(new Date()));
-        trip.setEndTime(StringUtils.Date2String(new Date()));
-        Travel info = new Travel();
-        info.setTrip(trip);
-        info.setStartPlace("starting_place");
-        info.setEndPlace("end_place");
-        info.setDepartureTime(StringUtils.Date2String(new Date()));
+        Trip trip = new Trip(new TripId(), "", "route_id", "", "", "", new Date(), new Date());
+        Travel info = new Travel(trip, "starting_place", "end_place", new Date());
         Response response = new Response<>(1, null, null);
         ResponseEntity<Response> re = new ResponseEntity<>(response, HttpStatus.OK);
         //mock checkStationExists() and queryForStationId()
@@ -88,7 +79,7 @@ public class BasicServiceImplTest {
 
     @Test
     public void testQueryForStationId() {
-        Response response = new Response<>(1, null, null);
+        Response response = new Response<>();
         ResponseEntity<Response> re = new ResponseEntity<>(response, HttpStatus.OK);
         Mockito.when(restTemplate.exchange(
                 "http://ts-station-service:12345/api/v1/stationservice/stations/id/" + "stationName",
@@ -96,7 +87,7 @@ public class BasicServiceImplTest {
                 requestEntity,
                 Response.class)).thenReturn(re);
         Response result = basicServiceImpl.queryForStationId("stationName", headers);
-        Assert.assertEquals(new Response<>(1, null, null), result);
+        Assert.assertEquals(new Response<>(null, null, null), result);
     }
 
     @Test
@@ -114,14 +105,14 @@ public class BasicServiceImplTest {
 
     @Test
     public void testQueryTrainType() {
-        Response response = new Response<>(1, null, null);
+        Response response = new Response<>();
         ResponseEntity<Response> re = new ResponseEntity<>(response, HttpStatus.OK);
         Mockito.when(restTemplate.exchange(
-                "http://ts-train-service:14567/api/v1/trainservice/trains/byName/" + "trainTypeName",
+                "http://ts-train-service:14567/api/v1/trainservice/trains/" + "trainTypeId",
                 HttpMethod.GET,
                 requestEntity,
                 Response.class)).thenReturn(re);
-        TrainType result = basicServiceImpl.queryTrainTypeByName("trainTypeId", headers);
+        TrainType result = basicServiceImpl.queryTrainType("trainTypeId", headers);
         Assert.assertNull(result);
     }
 

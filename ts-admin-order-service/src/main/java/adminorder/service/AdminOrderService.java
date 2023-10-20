@@ -1,6 +1,6 @@
 package adminorder.service;
 
-import edu.fudan.common.entity.*;
+import adminorder.entity.*;
 import edu.fudan.common.util.Response;
 import org.springframework.http.HttpHeaders;
 
